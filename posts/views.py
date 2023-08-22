@@ -4,10 +4,12 @@ from .models import Musician, Category
 from .forms import *
 from .utils import *
 from django.views.generic import ListView, DetailView, CreateView
+from django.contrib.auth.views import LoginView
+from django.contrib.auth import logout, login
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.paginator import Paginator
 
 class MusHome(DataMixin, ListView): 
@@ -22,7 +24,7 @@ class MusHome(DataMixin, ListView):
         return context
     
     def get_queryset(self):
-        return Musician.objects.filter(is_published = True)
+        return Musician.objects.filter(is_published = True).select_related('cat')
     
 # def index(request):
 #     posts = Musician.objects.all()
@@ -114,13 +116,14 @@ class MusCategory(DataMixin, ListView):
 
     def get_context_data(self, *, object_list = None, **kwargs):
         context = super().get_context_data(**kwargs)
-        c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat), cat_selected = Category.objects.get(slug = self.kwargs['cat_slug']).id) 
+        c = Category.objects.get(slug = self.kwargs['cat_slug'])
+        c_def = self.get_user_context(title='Категория - ' + c.name, cat_selected = c.pk) 
         context = dict(list(context.items()) + list(c_def.items())) 
 
         return context
 
     def get_queryset(self):
-        return Musician.objects.filter(cat__slug = self.kwargs['cat_slug'], is_published = True)
+        return Musician.objects.filter(cat__slug = self.kwargs['cat_slug'], is_published = True).select_related('cat')
         
 
 # def show_category(request, cat_slug):
@@ -140,15 +143,40 @@ class MusCategory(DataMixin, ListView):
 def pageNotFound(request, exception):
     return HttpResponseNotFound('<h1>Страница не найдена</h1>')
 
-def login(request):
-    return HttpResponse('Авторизация')
+# def login(request):
+#     return HttpResponse('Авторизация')
 
 class RegisterUser(DataMixin, CreateView):
-   form_class = RegisterUserForm
-   template_name = 'posts/register.html'
-   success_url = reverse_lazy('posts:login') 
-   def get_context_data(self, *, object_list = None, **kwargs):
+    form_class = RegisterUserForm
+    template_name = 'posts/register.html'
+    success_url = reverse_lazy('posts:login') 
+    def get_context_data(self, *, object_list = None, **kwargs):
         context = super().get_context_data(**kwargs)
         c_def = self.get_user_context(title='Регистрация') 
         context = dict(list(context.items()) + list(c_def.items()))  
         return context
+
+    def form_valid(self, form):
+        """
+        Вызывается при успешной регистрации и авторизует пользователя
+        """
+        user = form.save()
+        login(self.request, user)
+        return redirect('posts:home')
+
+class LoginUser(DataMixin, LoginView):
+    form_class = LoginUserForm
+    template_name = 'posts/login.html'
+    
+
+    def get_context_data(self, *, object_list = None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title = 'Авторизация')
+        context = dict(list(context.items()) + list(c_def.items()))
+        return context
+    def get_success_url(self):
+        return reverse_lazy('posts:home')
+
+def logout_user(request):
+    logout(request)
+    return redirect('posts:login')

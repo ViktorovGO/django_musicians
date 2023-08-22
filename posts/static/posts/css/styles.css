@@ -91,12 +91,13 @@ ul.mainmenu {
 	margin: 0;
 	padding: 0;
 	height: 60px;
-	color: #fdc073;
+	color: #0f0f0f;
 	font-size: 20px;
 	overflow: hidden;
 }
 ul.mainmenu li {
 	float: left;
+
 	margin: 18px 40px 0 30px;
 }
 ul.mainmenu li.logo {margin: 0;}
