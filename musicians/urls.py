@@ -22,7 +22,8 @@ from musicians import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('posts.urls')),
-    path('captcha/',include('captcha.urls'))
+    path('captcha/',include('captcha.urls')),
+    path('api/v1/drf-auth/', include('rest_framework.urls')),
 ]
 
 if settings.DEBUG:

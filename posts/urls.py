@@ -1,6 +1,7 @@
-from django.urls import path
+from django.urls import path, include
 from django.views.decorators.cache import cache_page 
 from .views import *
+
 
 app_name = 'posts'
 urlpatterns = [
@@ -13,5 +14,8 @@ urlpatterns = [
     path('login/', LoginUser.as_view(), name='login'),
     path('logout/', logout_user, name='logout'),
     path('post/<slug:post_slug>/', ShowPost.as_view(), name='post'),
-    path('category/<slug:cat_slug>/', MusCategory.as_view(), name='category')
+    path('category/<slug:cat_slug>/', MusCategory.as_view(), name='category'),
+    path('api/v1/musician/', MusicianViewList.as_view()),
+    path('api/v1/musician/<int:pk>/', MusicianDetail.as_view()),
+    
 ]

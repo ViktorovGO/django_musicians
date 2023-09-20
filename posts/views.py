@@ -11,6 +11,20 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.paginator import Paginator
+from .serializers import MusicianSerializer
+from rest_framework import generics
+from rest_framework.permissions import *
+
+class MusicianViewList(generics.ListCreateAPIView):
+    queryset = Musician.objects.all()
+    serializer_class = MusicianSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+class MusicianDetail(generics.RetrieveUpdateAPIView):
+    queryset = Musician.objects.all()
+    serializer_class = MusicianSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
 
 class MusHome(DataMixin, ListView): 
     model = Musician
