@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'debug_toolbar',
+    'captcha',
     'posts.apps.PostsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -59,7 +60,7 @@ ROOT_URLCONF = 'musicians.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -137,3 +138,9 @@ MEDIA_URL = '/media/'
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+CACHES = {
+    'default': {
+        "BACKEND":'django.core.cache.backends.filebased.FileBasedCache',
+        "LOCATION": os.path.join(BASE_DIR,'musicians_cache')
+}} 

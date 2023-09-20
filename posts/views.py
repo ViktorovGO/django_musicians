@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404
 from .models import Musician, Category
 from .forms import *
 from .utils import *
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, FormView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import logout, login
 from django.urls import reverse_lazy
@@ -80,11 +80,20 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
 #     }
 #     return render(request, 'posts/addpage.html', context = context)
 
+class ContactFormView(DataMixin, FormView):
+    form_class = ContactForm
+    template_name = 'posts/contact.html'
+    success_url = reverse_lazy('posts:home') 
 
-def contact(request):
-    return HttpResponse('Контакты')
+    def get_context_data(self, *, object_list = None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='Обратная связь') 
+        context = dict(list(context.items()) + list(c_def.items()))  
+        return context
 
-
+    def form_valid(self, form):
+        print(form.cleaned_data)
+        return redirect('posts:home')
 
 class ShowPost(DataMixin, DetailView):
     model = Musician
@@ -117,7 +126,7 @@ class MusCategory(DataMixin, ListView):
     def get_context_data(self, *, object_list = None, **kwargs):
         context = super().get_context_data(**kwargs)
         c = Category.objects.get(slug = self.kwargs['cat_slug'])
-        c_def = self.get_user_context(title='Категория - ' + c.name, cat_selected = c.pk) 
+        c_def = self.get_user_context(title='Категория - ' + c.name, cat_selected = c.id) 
         context = dict(list(context.items()) + list(c_def.items())) 
 
         return context
@@ -126,19 +135,19 @@ class MusCategory(DataMixin, ListView):
         return Musician.objects.filter(cat__slug = self.kwargs['cat_slug'], is_published = True).select_related('cat')
         
 
-# def show_category(request, cat_slug):
-#     cat_id = Category.objects.get(slug = cat_slug).id
-#     posts = Musician.objects.filter(cat_id = cat_id)
+def show_category(request, cat_slug):
+    cat_id = Category.objects.get(slug = cat_slug).id
+    posts = Musician.objects.filter(cat_id = cat_id)
 
-#     if len(posts)==0:
-#         raise Http404()
-#     context = {
-#         'posts': posts,  
-#         'title': 'Отображение по категориям',
-#         'cat_selected': cat_id,
-#         'menu':menu,
-#     }
-#     return render(request, 'posts/index.html', context = context)
+    if len(posts)==0:
+        raise Http404()
+    context = {
+        'posts': posts,  
+        'title': 'Отображение по категориям',
+        'cat_selected': cat_id,
+        'menu':menu,
+    }
+    return render(request, 'posts/index.html', context = context)
 
 def pageNotFound(request, exception):
     return HttpResponseNotFound('<h1>Страница не найдена</h1>')
