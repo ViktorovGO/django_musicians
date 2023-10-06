@@ -35,7 +35,9 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'debug_toolbar',
     'rest_framework',
+    'rest_framework.authtoken',
     'captcha',
+    'djoser',
     'posts.apps.PostsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -145,3 +147,8 @@ CACHES = {
         "BACKEND":'django.core.cache.backends.filebased.FileBasedCache',
         "LOCATION": os.path.join(BASE_DIR,'musicians_cache')
 }} 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}

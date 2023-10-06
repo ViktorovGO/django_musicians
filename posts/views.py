@@ -18,12 +18,12 @@ from rest_framework.permissions import *
 class MusicianViewList(generics.ListCreateAPIView):
     queryset = Musician.objects.all()
     serializer_class = MusicianSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
-class MusicianDetail(generics.RetrieveUpdateAPIView):
+class MusicianDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Musician.objects.all()
     serializer_class = MusicianSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
 
 class MusHome(DataMixin, ListView): 

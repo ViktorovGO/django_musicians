@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.views.decorators.cache import cache_page 
 from .views import *
 
@@ -17,5 +17,6 @@ urlpatterns = [
     path('category/<slug:cat_slug>/', MusCategory.as_view(), name='category'),
     path('api/v1/musician/', MusicianViewList.as_view()),
     path('api/v1/musician/<int:pk>/', MusicianDetail.as_view()),
+    
     
 ]
