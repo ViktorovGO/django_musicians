@@ -33,6 +33,7 @@ class RegisterUserForm(UserCreationForm):
     email = forms.EmailField(label='Почта', widget=forms.TextInput (attrs={'class': 'form-input'})) 
     password1 = forms.CharField(label='Пароль', widget=forms.TextInput (attrs={'class': 'form-input'})) 
     password2 = forms.CharField(label='Повтор пароля', widget=forms.TextInput (attrs={'class': 'form-input'}))
+    captcha = CaptchaField()
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
@@ -48,3 +49,16 @@ class ContactForm(forms.Form):
     email = forms.EmailField(label='Email')
     content = forms.CharField(widget=forms.Textarea(attrs={'cols': 60, 'rows': 10}))
     captcha = CaptchaField()
+
+class AddCommForm(forms.ModelForm):
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.fields['cat'].empty_label = "Пост не выбран" 
+
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'cols': 60, 'rows': 10}),
+        }
+   

@@ -14,16 +14,27 @@ from django.core.paginator import Paginator
 from .serializers import MusicianSerializer
 from rest_framework import generics
 from rest_framework.permissions import *
+class IsOwnerORAdminORReadonly(BasePermission):
+    """
+    A base class from which all permission classes should inherit.
+    """
+    def has_object_permission(self, request, view, obj):
+        """
+        Return `True` if permission is granted, `False` otherwise.
+        """
+        if request.method in SAFE_METHODS or request.user.is_staff:
+            return True
+        return obj.user==request.user
 
 class MusicianViewList(generics.ListCreateAPIView):
     queryset = Musician.objects.all()
     serializer_class = MusicianSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
 class MusicianDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Musician.objects.all()
     serializer_class = MusicianSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsOwnerORAdminORReadonly,)
 
 
 class MusHome(DataMixin, ListView): 
@@ -49,17 +60,17 @@ class MusHome(DataMixin, ListView):
 #     }
 #     return render(request, 'posts/index.html', context = context)
 
-@login_required
+# @login_required
 def about(request):
     contact_list = Musician.objects.all()
-    paginator = Paginator(contact_list, 3)
-    page_number = request.GET.get ('page')
-    page_obj = paginator.get_page(page_number)
+    # paginator = Paginator(contact_list, 1)
+    # page_number = request.GET.get('page')
+    # page_obj = paginator.get_page(page_number)
     context = {   
         'title': 'О сайте',
         'cat_selected': 0,
         'menu':menu,
-        'page_obj':page_obj
+        # 'page_obj':page_obj
     }
     return render(request, 'posts/about.html', context = context)
 
@@ -67,21 +78,27 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm
     template_name = 'posts/addpage.html'
     success_url = reverse_lazy('posts:home')
-    login_url = reverse_lazy('posts:home')
+    login_url = reverse_lazy('posts:login')
     # raise_exception = True
     def get_context_data(self, *, object_list = None, **kwargs):
         context = super().get_context_data(**kwargs)
         c_def = self.get_user_context(title='Добавление статьи') 
         context = dict(list(context.items()) + list(c_def.items()))  
         return context
-
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user
+        self.object.save()
+        return super(AddPage, self).form_valid(form)
+# @login_required
 # def add_page(request):
+    
 #     if request.method == 'POST':
 #         form = AddPostForm(request.POST, request.FILES)
 #         if form.is_valid():
-#             # print(form.cleaned_data) 
-#             form.save()
-#             # Musician.objects.create(**form.cleaned_data)
+#             form.cleaned_data['user']=request.user
+#             # form.save()
+#             Musician.objects.create(**form.cleaned_data)
 #             return redirect('posts:home')
 
 #     else:    
@@ -109,26 +126,52 @@ class ContactFormView(DataMixin, FormView):
         print(form.cleaned_data)
         return redirect('posts:home')
 
-class ShowPost(DataMixin, DetailView):
-    model = Musician
-    template_name = 'posts/post.html'
-    slug_url_kwarg = 'post_slug'
-    context_object_name = 'post'
+# class ShowPost(DataMixin,DetailView):
+#     model = Musician
+#     template_name = 'posts/post.html'
+#     slug_url_kwarg = 'post_slug'
+#     context_object_name = 'post'
 
-    def get_context_data(self, *, object_list = None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        c_def = self.get_user_context(title=context['post'].title, cat_selected = context['post'].cat_id) 
-        context = dict(list(context.items()) + list(c_def.items())) 
-        return context
+#     def get_context_data(self, *, object_list = None, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         c_def = self.get_user_context(title=context['post'].title, cat_selected = context['post'].cat_id) 
+#         context = dict(list(context.items()) + list(c_def.items())) 
+#         return context
+    
 
-# def show_post(request, post_slug):
-#     post = get_object_or_404(Musician, slug = post_slug)
-#     context ={
-#         'post':post,
-#         'title':post.title,
-#         'cat_selected':post.cat_id
-#     } 
-#     return render(request, 'posts/post.html', context = context)
+def show_post(request, post_slug):
+    post = get_object_or_404(Musician, slug = post_slug)
+    comments = Comment.objects.filter(post=post)
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            form = AddCommForm(request.POST, request.FILES)
+            if form.is_valid():
+                form.cleaned_data['post']=post
+                form.cleaned_data['is_published']=True
+                form.cleaned_data['user']=request.user
+                # form.save()
+                Comment.objects.create(**form.cleaned_data)
+                return redirect('posts:home')
+
+        else:    
+            form = AddCommForm() 
+        context ={
+            'form':form,
+            'post':post,
+            'title':post.title,
+            'cat_selected':post.cat_id,
+            'menu':menu,
+            'comments':comments,
+        }
+    else:
+        context ={
+            'post':post,
+            'title':post.title,
+            'cat_selected':post.cat_id,
+            'menu':menu,
+            'comments':comments,
+        }
+    return render(request, 'posts/post.html', context = context)
 
 class MusCategory(DataMixin, ListView):
     

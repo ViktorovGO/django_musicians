@@ -2,10 +2,28 @@
 
 {% block content %}
 <h1>{{post.title}}</h1>
-
 {% if post.photo %}
 <p><img class="img-article-left" src="{{post.photo.url}}"></p>
 {% endif %}
 
 {{post.content|linebreaks}}
+{% if request.user.is_authenticated %}
+<h1>Оставить комментарий</h1>
+<form method="post">
+    {% csrf_token %}  
+    <div class="form-error">{{ form.non_field_errors }}</div>
+    {% for f in form %}
+    <p><label class="form-label" for="{{ f.id_for_label }}">{{f.label}}:</label>{{ f }}</p>
+    <div class="form-error">{{ f.errors }}</div>
+    {% endfor %}
+    <button type="submit">Добавить</button> 
+</form>
+{% endif %}
+<h1>Комментарии</h1>
+{% for com in comments %}
+<ul>
+    <li>{{com.user}} {{com.time_create}}</li>
+    <p>{{com.content}}</p>
+</ul>
+{% endfor %}
 {% endblock %}
