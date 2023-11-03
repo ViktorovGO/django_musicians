@@ -14,6 +14,7 @@ from django.core.paginator import Paginator
 from .serializers import MusicianSerializer
 from rest_framework import generics
 from rest_framework.permissions import *
+
 class IsOwnerORAdminORReadonly(BasePermission):
     """
     A base class from which all permission classes should inherit.
@@ -63,15 +64,25 @@ class MusHome(DataMixin, ListView):
 # @login_required
 def about(request):
     contact_list = Musician.objects.all()
+    
+    
     # paginator = Paginator(contact_list, 1)
     # page_number = request.GET.get('page')
     # page_obj = paginator.get_page(page_number)
-    context = {   
+    if not request.user.is_authenticated:
+        context = {   
         'title': 'О сайте',
         'cat_selected': 0,
-        'menu':menu,
+        'menu':[menu[0],menu[2]],
         # 'page_obj':page_obj
-    }
+        }
+    else:
+        context = {   
+            'title': 'О сайте',
+            'cat_selected': 0,
+            'menu':menu,
+            # 'page_obj':page_obj
+        }
     return render(request, 'posts/about.html', context = context)
 
 class AddPage(LoginRequiredMixin, DataMixin, CreateView):
@@ -168,7 +179,7 @@ def show_post(request, post_slug):
             'post':post,
             'title':post.title,
             'cat_selected':post.cat_id,
-            'menu':menu,
+            'menu':[menu[0],menu[2]],
             'comments':comments,
         }
     return render(request, 'posts/post.html', context = context)
