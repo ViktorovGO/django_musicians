@@ -13,6 +13,10 @@
 </head>
 
 <body>
+	
+	
+	
+		
 	<table class="table-page" cellpadding="0" cellspacing="0">
 		<tr>
 			<td valign=top>
@@ -20,8 +24,13 @@
 				<div class="header">
 					<ul id="mainmenu" class="mainmenu">
 						<li class="logo"><a href="{% url 'posts:home'%}">
-								<div class="logo"></div>
-							</a></li> 
+							<div class="loader loader-7">
+								<div class="line line1"></div>
+								<div class="line line2"></div>
+								<div class="line line3"></div>
+							  </div>
+							</a></li>
+							
 						{% for m in menu %}
 						<li><a href="{% url m.url_name %}">{{m.title}}</a></li>
 						{% endfor %}

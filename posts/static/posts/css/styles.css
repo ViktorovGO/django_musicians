@@ -1,3 +1,79 @@
+
+@-webkit-keyframes line-grow {
+	0% {
+		height: 0;
+	}
+	100% {
+		height: 75%;
+	}
+}
+
+@keyframes line-grow {
+	0% {
+		height: 0;
+	}
+	100% {
+		height: 75%;
+	}
+}
+
+
+
+
+@media only screen and (max-width: 600px) {
+	section {
+	  min-width: 350px;
+	}
+  }
+	  
+	  .loader {
+		  position: relative;
+		  width: 60px;
+		  height: 50px;
+		  border-radius: 50%;
+		  margin: 0px;
+		  display: inline-block;
+		  vertical-align: middle;
+	  }
+
+/*LOADER-7*/
+/* from(#1ee95d),
+to(#5714ce) */
+.loader-7 .line {
+	width: 8px;
+	position: absolute;
+	border-radius: 5px;
+	bottom: 0;
+	background: -webkit-gradient(
+	  linear,
+	  left top,
+	  left bottom,
+	  from(#dce91e),
+	  to(#14ceb5)
+	);
+	background: -webkit-linear-gradient(top, #dce91e, #14ceb5);
+	background: -o-linear-gradient(top, #dce91e, #14ceb5);
+	background: linear-gradient(to bottom, #dce91e, #14ceb5);
+  }
+  
+  .loader-7 .line1 {
+	left: 0;
+	-webkit-animation: line-grow 0.5s ease alternate infinite;
+	animation: line-grow 0.5s ease alternate infinite;
+  }
+  
+  .loader-7 .line2 {
+	left: 20px;
+	-webkit-animation: line-grow 0.5s 0.2s ease alternate infinite;
+	animation: line-grow 0.5s 0.2s ease alternate infinite;
+  }
+  
+  .loader-7 .line3 {
+	left: 40px;
+	-webkit-animation: line-grow 0.5s 0.4s ease alternate infinite;
+	animation: line-grow 0.5s 0.4s ease alternate infinite;
+  }
+
 html, body {
 	font-family: 'Arial';
 	margin: 0;
@@ -81,10 +157,13 @@ ul.list-articles li {
 }
 
 .logo {
-	background: url('../images/logo.png') no-repeat;
-	width: 45px;
-	height: 50px;
-	
+	/* background: url('../images/logo.png') no-repeat; */
+	width: 15px;
+	height: 45px;
+	position:  relative;
+	top: -5px;
+	left: 10px;
+
 	
 	
 }
