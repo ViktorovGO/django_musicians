@@ -139,7 +139,7 @@ CACHES = {
         # "BACKEND":'django.core.cache.backends.filebased.FileBasedCache',
         # "LOCATION": os.path.join(BASE_DIR,'musicians_cache')
         "BACKEND":'django.core.cache.backends.redis.RedisCache',
-        "LOCATION":'redis://172.23.0.2:6379',
+        "LOCATION":'redis://redis:6379',
 }} 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
