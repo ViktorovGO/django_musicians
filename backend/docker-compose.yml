@@ -1,3 +1,4 @@
+
 version: '3'
 
 services:
@@ -6,15 +7,43 @@ services:
     container_name: django_proj
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/usr/src/app
+      - django:/usr/src/app
     ports:
       - "8000:8000"
+    depends_on:
+      - pgdb  
     
-
   redis:
     image: redis:latest
     container_name: redis_cache
     restart: always
     ports:
       - "6379:6379"
+  
+  pgdb:
+    image: postgres:latest
+    container_name: pgdb
+    restart: always
+    volumes:
+      - pgdbdata:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "82:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=fl4shr21@yandex.ru
+      - PGADMIN_DEFAULT_PASSWORD=${POSTGRES_PASSWORD}
+    
+
+volumes:
+  pgdbdata:
+  django:
